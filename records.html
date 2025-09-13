@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FDC Library - Records</title>
+  <style>
+    :root {
+      --bg:#f0f2f5; --text:#111; --card-bg:rgba(255,255,255,0.7); --accent:#6366f1;
+    }
+    body.dark {
+      --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee;
+    }
+    body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); color:var(--text); transition:.3s; }
+    .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; }
+    .navbar a { color:#fff; margin:0 10px; text-decoration:none; font-weight:500; }
+    .toggle-btn { background:#fff; color:var(--accent); border:none; padding:6px 12px; border-radius:20px; cursor:pointer; }
+    .section { max-width:1000px; margin:25px auto; padding:20px; border-radius:16px; background:var(--card-bg); backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.1); }
+    h2 { color:var(--accent); }
+    .accordion { margin:12px 0; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .accordion-header { background:var(--accent); color:#fff; padding:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+    .accordion-content { display:none; padding:12px; }
+    .record { margin:10px 0; padding:12px; border-radius:10px; background:var(--card-bg); box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:.3s; }
+    .record.returned { border-left:5px solid #22c55e; }
+    .record.pending { border-left:5px solid #ef4444; }
+    .btn { padding:6px 12px; border:none; border-radius:8px; margin-top:8px; margin-right:5px; cursor:pointer; font-weight:500; }
+    .btn-return { background:#22c55e; color:white; }
+    .btn-delete { background:#ef4444; color:white; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div><strong>📖 FDC Library</strong></div>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="records.html">Records</a>
+      <button class="toggle-btn" onclick="toggleMode()">🌙</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📚 Records (Class-wise)</h2>
+    <div id="recordsContainer"></div>
+  </div>
+
+<script>
+  let applicants = JSON.parse(localStorage.getItem("applicants")) || [];
+  function save(){ localStorage.setItem("applicants", JSON.stringify(applicants)); }
+  function calcDays(date){ return Math.floor((Date.now()-new Date(date))/(1000*60*60*24)); }
+  function toggleAccordion(c){ const el=document.getElementById("c"+c); el.style.display=el.style.display==="block"?"none":"block"; }
+  function returnBook(id){ applicants=applicants.map(a=>a.id===id?{...a,returned:true}:a); save(); render(); }
+  function deleteApplicant(id){ applicants=applicants.filter(a=>a.id!==id); save(); render(); }
+  function render(){
+    const container=document.getElementById("recordsContainer"); container.innerHTML="";
+    for(let c=1;c<=12;c++){
+      const classApplicants=applicants.filter(a=>a.class==c);
+      const acc=document.createElement("div"); acc.className="accordion";
+      const head=document.createElement("div"); head.className="accordion-header"; head.innerHTML=`Class ${c} <span>(${classApplicants.length})</span>`;
+      head.onclick=()=>toggleAccordion(c);
+      const content=document.createElement("div"); content.className="accordion-content"; content.id="c"+c;
+      classApplicants.forEach(a=>{
+        const rec=document.createElement("div"); rec.className="record "+(a.returned?"returned":"pending");
+        rec.innerHTML=`<strong>${a.name}</strong> (Roll: ${a.roll})<br>Father: ${a.father}<br>Book: ${a.book}<br>Issued: ${new Date(a.issueDate).toLocaleDateString()}<br>Days Passed: ${calcDays(a.issueDate)}<br>Status: <b>${a.returned?"Returned ✅":"Pending ⏳"}</b>`;
+        const actions=document.createElement("div");
+        if(!a.returned){ const b=document.createElement("button"); b.className="btn btn-return"; b.textContent="Mark Returned"; b.onclick=()=>returnBook(a.id); actions.appendChild(b); }
+        const d=document.createElement("button"); d.className="btn btn-delete"; d.textContent="Delete"; d.onclick=()=>deleteApplicant(a.id); actions.appendChild(d);
+        rec.appendChild(actions); content.appendChild(rec);
+      });
+      acc.appendChild(head); acc.appendChild(content); container.appendChild(acc);
+    }
+  }
+  function toggleMode(){
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+  }
+  function loadTheme(){
+    if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); }
+  }
+  loadTheme(); render();
+</script>
+</body>
+</html>

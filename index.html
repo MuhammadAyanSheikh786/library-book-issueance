@@ -1,260 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FDC Library Book Issuance</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FDC Library - Home</title>
   <style>
+    :root {
+      --bg: #f0f2f5;
+      --text: #111;
+      --card-bg: rgba(255,255,255,0.7);
+      --accent: #6366f1;
+    }
+    body.dark {
+      --bg: #0f172a;
+      --text: #f8fafc;
+      --card-bg: rgba(30,41,59,0.7);
+      --accent: #22d3ee;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f6f9;
-      color: #333;
+      margin:0; font-family: "Segoe UI", sans-serif;
+      background:var(--bg); color:var(--text);
+      transition:all .3s ease;
     }
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    .navbar {
+      background:var(--accent); color:#fff;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 20px; position:sticky; top:0; z-index:10;
     }
-    nav {
-      display: flex;
-      justify-content: center;
-      background: #34495e;
+    .navbar a { color:#fff; margin:0 10px; text-decoration:none; font-weight:500; }
+    .toggle-btn {
+      background:#fff; color:var(--accent); border:none;
+      padding:6px 12px; border-radius:20px; cursor:pointer;
+      font-weight:bold;
     }
-    nav button {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      background: #34495e;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
+    .section {
+      max-width:1100px; margin:30px auto; padding:20px;
+      border-radius:16px; background:var(--card-bg);
+      backdrop-filter:blur(10px);
+      box-shadow:0 4px 16px rgba(0,0,0,0.1);
     }
-    nav button:hover, nav button.active {
-      background: #1abc9c;
-    }
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h2 { margin-top: 0; }
-    form label { display: block; margin: 10px 0; }
-    form input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 5px;
-    }
-    form button {
-      margin-top: 15px;
-      padding: 12px;
-      width: 100%;
-      background: #1abc9c;
-      color: white;
-      border: none;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    form button:hover {
-      background: #16a085;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px;
-      text-align: center;
-    }
-    th {
-      background: #1abc9c;
-      color: white;
-    }
-    tr:nth-child(even) { background: #f9f9f9; }
-    .returned { background-color: #c8f7c5 !important; }
-    .btn {
-      padding: 6px 12px;
-      margin: 2px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .delete { background: #e74c3c; color: white; }
-    .delete:hover { background: #c0392b; }
-    .return { background: #27ae60; color: white; }
-    .return:hover { background: #1e8449; }
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 20px;
-    }
+    h2 { color:var(--accent); margin-bottom:15px; }
+    .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px; }
     .card {
-      flex: 1;
-      margin: 5px;
-      background: #ecf0f1;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 18px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding:20px; border-radius:14px; text-align:center;
+      background:linear-gradient(135deg,var(--accent),#9333ea);
+      color:#fff; font-weight:600;
+      box-shadow:0 3px 10px rgba(0,0,0,0.2);
     }
-    .card span { font-size: 22px; font-weight: bold; color: #2c3e50; }
+    .form-group { margin-bottom:15px; width: 1000px;   }
+    .form-group label { font-weight:600; display:block; margin-bottom:6px; }
+    .form-group input, .form-group select {
+      width:100%; padding:12px; border:1px solid #ccc; border-radius:8px;
+      background:var(--card-bg); color:var(--text); font-size:15px;
+    }
+    .btn {
+      padding:12px 18px; border:none; border-radius:10px;
+      cursor:pointer; font-weight:600; font-size:15px;
+    }
+    .btn-primary {
+      background:var(--accent); color:#fff;
+    }
+    .btn-primary:hover { opacity:0.9; }
   </style>
 </head>
 <body>
-  <header>📚 FDC Library Book Issuance System</header>
-  <nav>
-    <button id="tabIssue" class="active" onclick="showPage('issuePage')">➕ Issue Book</button>
-    <button id="tabRecords" onclick="showPage('recordsPage')">📖 Records</button>
-  </nav>
-
-  <div class="container">
-    <!-- Stats -->
-    <div class="stats">
-      <div class="card">Total Issued <br><span id="totalIssued">0</span></div>
-      <div class="card">Returned <br><span id="totalReturned">0</span></div>
-      <div class="card">Pending <br><span id="totalPending">0</span></div>
-    </div>
-
-    <!-- Issue Page -->
-    <div id="issuePage" class="page active">
-      <h2>Issue a Book</h2>
-      <form id="issueForm">
-        <label>Student Name: <input type="text" id="studentName" required></label>
-        <label>Father Name: <input type="text" id="fatherName" required></label>
-        <label>Roll No: <input type="text" id="rollNo" required></label>
-        <label>Class: <input type="text" id="class" required></label>
-        <label>Phone No: <input type="text" id="phone" required></label>
-        <label>Book Name: <input type="text" id="bookName" required></label>
-        <button type="submit">✅ Issue Book</button>
-      </form>
-    </div>
-
-    <!-- Records Page -->
-    <div id="recordsPage" class="page">
-      <h2>Issued Books Records</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Father</th>
-            <th>Roll No</th>
-            <th>Class</</th>
-            <th>Phone</th>
-            <th>Book</th>
-            <th>Issued On</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTable"></tbody>
-      </table>
+  <div class="navbar">
+    <div><strong>📖 FDC Library</strong></div>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="records.html">Records</a>
+      <button class="toggle-btn" onclick="toggleMode()">🌙</button>
     </div>
   </div>
 
-  <script>
-    let records = JSON.parse(localStorage.getItem("libraryRecords")) || [];
+  <div class="section">
+    <h2>📊 Dashboard</h2>
+    <div class="dashboard">
+      <div class="card"><h3>Total Applicants</h3><p id="totalCount">0</p></div>
+      <div class="card"><h3>Returned</h3><p id="returnedCount">0</p></div>
+      <div class="card"><h3>Pending</h3><p id="pendingCount">0</p></div>
+    </div>
+  </div>
 
-    function showPage(id) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-      if (id === "issuePage") document.getElementById("tabIssue").classList.add("active");
-      if (id === "recordsPage") {
-        document.getElementById("tabRecords").classList.add("active");
-        renderRecords();
-      }
-      updateStats();
-    }
+  <div class="section">
+    <h2>➕ Add New Applicant</h2>
+    <div class="form-group"><label>Student Name</label><input type="text" id="studentName"></div>
+    <div class="form-group"><label>Father Name</label><input type="text" id="fatherName"></div>
+    <div class="form-group"><label>Roll No</label><input type="text" id="rollNo"></div>
+    <div class="form-group">
+      <label>Class</label>
+      <select id="studentClass"></select>
+    </div>
+    <div class="form-group"><label>Book Name</label><input type="text" id="bookName"></div>
+    <button class="btn btn-primary" onclick="addApplicant()">Add Applicant</button>
+  </div>
 
-    document.getElementById("issueForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      let record = {
-        id: Date.now(),
-        studentName: document.getElementById("studentName").value,
-        fatherName: document.getElementById("fatherName").value,
-        rollNo: document.getElementById("rollNo").value,
-        class: document.getElementById("class").value,
-        phone: document.getElementById("phone").value,
-        bookName: document.getElementById("bookName").value,
-        issuedOn: new Date().toLocaleDateString(),
-        returned: false
-      };
-      records.push(record);
-      localStorage.setItem("libraryRecords", JSON.stringify(records));
-      alert("✅ Book Issued Successfully!");
-      this.reset();
-      updateStats();
-    });
-
-    function renderRecords() {
-      let table = document.getElementById("recordsTable");
-      table.innerHTML = "";
-      records.forEach(r => {
-        let row = document.createElement("tr");
-        if (r.returned) row.classList.add("returned");
-        row.innerHTML = `
-          <td>${r.studentName}</td>
-          <td>${r.fatherName}</td>
-          <td>${r.rollNo}</td>
-          <td>${r.class}</td>
-          <td>${r.phone}</td>
-          <td>${r.bookName}</td>
-          <td>${r.issuedOn}</td>
-          <td>${r.returned ? "Returned ✅" : "Issued 🚩"}</td>
-          <td>
-            <button class="btn return" onclick="markReturned(${r.id})">Return</button>
-            <button class="btn delete" onclick="deleteRecord(${r.id})">Delete</button>
-          </td>
-        `;
-        table.appendChild(row);
-      });
-    }
-
-    function markReturned(id) {
-      let record = records.find(r => r.id === id);
-      if (record) {
-        record.returned = true;
-        localStorage.setItem("libraryRecords", JSON.stringify(records));
-        renderRecords();
-        updateStats();
-      }
-    }
-
-    function deleteRecord(id) {
-      records = records.filter(r => r.id !== id);
-      localStorage.setItem("libraryRecords", JSON.stringify(records));
-      renderRecords();
-      updateStats();
-    }
-
-    function updateStats() {
-      let total = records.length;
-      let returned = records.filter(r => r.returned).length;
-      let pending = total - returned;
-      document.getElementById("totalIssued").textContent = total;
-      document.getElementById("totalReturned").textContent = returned;
-      document.getElementById("totalPending").textContent = pending;
-    }
-
-    updateStats();
-  </script>
+<script>
+  let applicants = JSON.parse(localStorage.getItem("applicants")) || [];
+  function save(){ localStorage.setItem("applicants", JSON.stringify(applicants)); }
+  function updateDashboard(){
+    document.getElementById("totalCount").textContent=applicants.length;
+    document.getElementById("returnedCount").textContent=applicants.filter(a=>a.returned).length;
+    document.getElementById("pendingCount").textContent=applicants.filter(a=>!a.returned).length;
+  }
+  function addApplicant(){
+    const name=document.getElementById("studentName").value.trim();
+    const father=document.getElementById("fatherName").value.trim();
+    const roll=document.getElementById("rollNo").value.trim();
+    const cls=document.getElementById("studentClass").value;
+    const book=document.getElementById("bookName").value.trim();
+    if(!name||!father||!roll||!cls||!book){ alert("Fill all fields"); return; }
+    applicants.push({id:Date.now(),name,father,roll,class:cls,book,issueDate:new Date().toISOString(),returned:false});
+    save(); updateDashboard();
+    ["studentName","fatherName","rollNo","studentClass","bookName"].forEach(id=>document.getElementById(id).value="");
+  }
+  function fillClasses(){
+    const sel=document.getElementById("studentClass");
+    sel.innerHTML='<option value="">Select Class</option>';
+    for(let i=1;i<=12;i++){ sel.innerHTML+=`<option value="${i}">Class ${i}</option>`; }
+  }
+  function toggleMode(){
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+  }
+  function loadTheme(){
+    if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); }
+  }
+  fillClasses(); loadTheme(); updateDashboard();
+</script>
 </body>
 </html>
