@@ -10,20 +10,27 @@
     }
     body.dark { --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee; }
     body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); color:var(--text); transition:.3s; }
-    .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; }
-    .navbar a { color:#fff; margin:0 10px; text-decoration:none; font-weight:500; }
+
+    .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; flex-wrap:wrap; }
+    .navbar a { color:#fff; margin:5px 10px; text-decoration:none; font-weight:500; }
     .toggle-btn { background:#fff; color:var(--accent); border:none; padding:6px 12px; border-radius:20px; cursor:pointer; }
+
     .section { max-width:1100px; margin:30px auto; padding:20px; border-radius:16px; background:var(--card-bg); backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.1); }
     h2 { color:var(--accent); margin-bottom:15px; }
+
     .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px; }
     .card { padding:20px; border-radius:14px; text-align:center; background:linear-gradient(135deg,var(--accent),#9333ea); color:#fff; font-weight:600; box-shadow:0 3px 10px rgba(0,0,0,0.2); }
+
     .form-group { margin-bottom:15px; }
     .form-group label { font-weight:600; display:block; margin-bottom:6px; }
     .form-group input, .form-group select { width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; background:var(--card-bg); color:var(--text); font-size:15px; }
+
     .btn { padding:12px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:15px; }
     .btn-primary { background:var(--accent); color:#fff; }
     .btn-primary:hover { opacity:0.9; }
-    #addSection { display:none; } /* hidden by default */
+
+    /* Responsive tweaks */
+    @media(max-width:600px){ .navbar{flex-direction:column; align-items:flex-start;} }
   </style>
 </head>
 <body>
@@ -37,6 +44,7 @@
     </div>
   </div>
 
+  <!-- Dashboard -->
   <div class="section">
     <h2>📊 Dashboard</h2>
     <div class="dashboard">
@@ -46,7 +54,8 @@
     </div>
   </div>
 
-  <div class="section" id="addSection">
+  <!-- Add Applicant (only librarian can see) -->
+  <div class="section" id="addSection" style="display:none;">
     <h2>➕ Add New Applicant</h2>
     <div class="form-group"><label>Student Name</label><input type="text" id="studentName"></div>
     <div class="form-group"><label>Father Name</label><input type="text" id="fatherName"></div>
@@ -57,6 +66,9 @@
   </div>
 
 <script>
+  // 🔹 Every reload → reset login
+  localStorage.removeItem("fdcAuth");
+
   let applicants=JSON.parse(localStorage.getItem("applicants"))||[];
   let isLibrarian=localStorage.getItem("fdcAuth")==="true";
 
@@ -92,7 +104,7 @@
   function toggleMode(){ document.body.classList.toggle("dark"); localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light"); }
   function loadTheme(){ if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); } }
 
-  // Show Add form only if librarian is logged in
+  // Show Add section only if librarian logged in
   if(isLibrarian){ document.getElementById("addSection").style.display="block"; }
 
   fillClasses(); loadTheme(); updateDashboard();
