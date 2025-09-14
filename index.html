@@ -1,113 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FDC Library - Home</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FDC Library — Dashboard</title>
   <style>
-    :root {
-      --bg:#f0f2f5; --text:#111; --card-bg:rgba(255,255,255,0.7); --accent:#6366f1;
+    :root{
+      --bg1:#081229; --bg2:#14223b;
+      --glass: rgba(255,255,255,0.03);
+      --text:#e9f2ff;
+      --accent1:#ff0057; --accent2:#7303c0; --accent3:#00c9ff;
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.6);
     }
-    body.dark { --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee; }
-    body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); color:var(--text); transition:.3s; }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--text); display:flex;flex-direction:column;
+    }
 
-    .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; flex-wrap:wrap; }
-    .navbar a { color:#fff; margin:5px 10px; text-decoration:none; font-weight:500; }
-    .toggle-btn { background:#fff; color:var(--accent); border:none; padding:6px 12px; border-radius:20px; cursor:pointer; }
+    header{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+      background-size: 300% 300%; animation:hdr 9s ease infinite; padding:18px 20px; color:white;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    @keyframes hdr { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .brand{font-weight:700;font-size:18px}
+    .nav-actions{display:flex;gap:10px;align-items:center}
+    .btn{
+      border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:#03203a;font-weight:700;
+      background:linear-gradient(90deg,#ffffff66,#ffffff33);backdrop-filter:blur(4px);
+    }
+    .btn.secondary{background:rgba(0,0,0,0.08);color:#fff}
 
-    .section { max-width:1100px; margin:30px auto; padding:20px; border-radius:16px; background:var(--card-bg); backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.1); }
-    h2 { color:var(--accent); margin-bottom:15px; }
+    /* Main layout */
+    .main{
+      width:100%;max-width:1200px;margin:22px auto;padding:0 16px;flex:1;
+    }
+    .grid{
+      display:grid;grid-template-columns: 1.2fr 0.8fr;gap:18px;
+    }
+    .card{
+      background:var(--glass);border-radius:12px;padding:18px;box-shadow:var(--card-shadow);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .stats{
+      display:flex;gap:12px;flex-wrap:wrap;
+    }
+    .stat{
+      flex:1;min-width:140px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      border-radius:10px;padding:14px;text-align:center;
+    }
+    .stat h3{margin:0;font-size:13px;color:#cfeaff}
+    .stat p{margin-top:8px;font-size:20px;font-weight:700;color:#fff}
 
-    .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px; }
-    .card { padding:20px; border-radius:14px; text-align:center; background:linear-gradient(135deg,var(--accent),#9333ea); color:#fff; font-weight:600; box-shadow:0 3px 10px rgba(0,0,0,0.2); }
+    /* Add form */
+    form{display:flex;flex-direction:column;gap:10px}
+    input,select,button{
+      padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);color:var(--text);font-size:15px;
+    }
+    .muted{color:rgba(255,255,255,0.7);font-size:13px}
 
-    .form-group { margin-bottom:15px; }
-    .form-group label { font-weight:600; display:block; margin-bottom:6px; }
-    .form-group input, .form-group select { width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; background:var(--card-bg); color:var(--text); font-size:15px; }
+body.dark-mode #class {
+  background-color: #105ee6; /* dark gray-blue */
+  color: #0f0f0f;            /* text visible */
+  border: 1px solid #1e5cc7; /* subtle border */
+}
 
-    .btn { padding:12px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:15px; }
-    .btn-primary { background:var(--accent); color:#fff; }
-    .btn-primary:hover { opacity:0.9; }
 
-    /* Responsive tweaks */
-    @media(max-width:600px){ .navbar{flex-direction:column; align-items:flex-start;} }
+
+    /* records shortcut */
+    .link-row{display:flex;gap:10px;margin-top:12px}
+
+    footer{padding:12px;text-align:center;color:rgba(255,255,255,0.65);font-size:13px}
+
+    /* responsive */
+    @media(max-width:900px){
+      .grid{grid-template-columns:1fr; }
+      header{flex-direction:column;align-items:flex-start;gap:10px}
+      .nav-actions{width:100%;justify-content:flex-end}
+    }
+    @media(max-width:480px){
+      .brand{font-size:16px}
+      .stat p{font-size:18px}
+      input,select,button{padding:10px;font-size:14px}
+    }
   </style>
 </head>
 <body>
-  <div class="navbar">
-    <div><strong>📖 FDC Library</strong></div>
-    <div>
-      <a href="index.html">Home</a>
-      <a href="records.html">Records</a>
-      <a href="login.html">Librarian Login</a>
-      <button class="toggle-btn" onclick="toggleMode()">🌙</button>
+  <header>
+    <div class="brand">📚 FDC Library — Dashboard</div>
+    <div class="nav-actions">
+      <button class="btn" id="themeBtn">Theme</button>
+      <a href="records.html"><button class="btn">View Records</button></a>
+      <button class="btn" id="logoutBtn">Logout</button>
+      <a href="login.html" style="text-decoration:none"><button class="btn secondary">Librarian Login</button></a>
     </div>
-  </div>
+  </header>
 
-  <!-- Dashboard -->
-  <div class="section">
-    <h2>📊 Dashboard</h2>
-    <div class="dashboard">
-      <div class="card"><h3>Total Applicants</h3><p id="totalCount">0</p></div>
-      <div class="card"><h3>Returned</h3><p id="returnedCount">0</p></div>
-      <div class="card"><h3>Pending</h3><p id="pendingCount">0</p></div>
+  <main class="main">
+    <div class="grid">
+      <!-- Left: Stats & Form -->
+      <div class="card">
+        <h2 style="margin-top:0">Dashboard</h2>
+        <div class="stats" id="statsRow">
+          <div class="stat">
+            <h3>Total Records</h3>
+            <p id="totalCount">0</p>
+            <div class="muted">All saved applicants</div>
+          </div>
+          <div class="stat">
+            <h3>Books Issued</h3>
+            <p id="issuedCount">0</p>
+            <div class="muted">Currently issued</div>
+          </div>
+          <div class="stat">
+            <h3>Books Returned</h3>
+            <p id="returnedCount">0</p>
+            <div class="muted">Marked returned</div>
+          </div>
+        </div>
+
+        <div style="height:18px"></div>
+
+        <!-- Add applicant area (visible only if logged in) -->
+        <div id="addWrapper">
+          <h3>Add New Applicant</h3>
+          <form id="addForm">
+            <input id="studentName" placeholder="Student name (First Last)" required />
+            <input id="fatherName" placeholder="Father name" required />
+            <input id="rollNo" placeholder="Roll number / ID" required />
+            <select id="className" required style="background-color: #03203a;">
+              <option value="">Select class</option>
+              <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option>
+              <option value="4">Class 4</option><option value="5">Class 5</option><option value="6">Class 6</option>
+              <option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option>
+              <option value="10">Class 10</option><option value="11">Class 11</option><option value="12">Class 12</option>
+            </select>
+            <input id="phone" placeholder="Phone (optional)" />
+            <input id="bookName" placeholder="Book name" required />
+            <div style="display:flex;gap:10px;">
+              <button type="submit" style="flex:1">➕ Save (requires PIN)</button>
+              <a href="records.html" style="text-decoration:none"><button type="button" style="flex:1;background:rgba(255,255,255,0.06)">Open records</button></a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Not-logged notice -->
+        <div id="notLoggedNotice" style="display:none;margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);">
+          <div class="muted">Add applicant is restricted to librarian. <a href="login.html" style="color:#aee6ff;text-decoration:underline">Login as librarian</a></div>
+        </div>
+      </div>
+
+      <!-- Right: Recent / quick controls -->
+      <div class="card">
+        <h2>Recent Activity</h2>
+        <div id="recentList" style="display:flex;flex-direction:column;gap:10px;margin-top:12px"></div>
+
+        <div style="height:12px"></div>
+        <h3>Actions</h3>
+        <p class="muted">Only librarian (this tab) can add/return/delete. Reopen tab requires login again.</p>
+        <div style="height:12px"></div>
+        <button class="btn" onclick="exportCSV()">Export CSV</button>
+        <!-- <button class="btn" onclick="importSample()" style="margin-left:8px">Insert sample data</button> -->
+      </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Add Applicant (only librarian can see) -->
-  <div class="section" id="addSection" style="display:none;">
-    <h2>➕ Add New Applicant</h2>
-    <div class="form-group"><label>Student Name</label><input type="text" id="studentName"></div>
-    <div class="form-group"><label>Father Name</label><input type="text" id="fatherName"></div>
-    <div class="form-group"><label>Roll No</label><input type="text" id="rollNo"></div>
-    <div class="form-group"><label>Class</label><select id="studentClass"></select></div>
-    <div class="form-group"><label>Book Name</label><input type="text" id="bookName"></div>
-    <button class="btn btn-primary" onclick="addApplicant()">Add Applicant</button>
-  </div>
+  <footer>© 2025 FDC Library </footer>
 
 <script>
-  // 🔹 Every reload → reset login
-  localStorage.removeItem("fdcAuth");
+  // storage key
+  const KEY = 'fdcApplicants';
+  const PIN = '@fdc@';
+  // helper: load/save
+  function load() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  function save(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
 
-  let applicants=JSON.parse(localStorage.getItem("applicants"))||[];
-  let isLibrarian=localStorage.getItem("fdcAuth")==="true";
+  // auth: sessionStorage => persists through reload, clears on tab close
+  function isAuth() { return sessionStorage.getItem('fdcAuth') === 'true'; }
 
-  function save(){ localStorage.setItem("applicants",JSON.stringify(applicants)); }
-  function updateDashboard(){
-    document.getElementById("totalCount").textContent=applicants.length;
-    document.getElementById("returnedCount").textContent=applicants.filter(a=>a.returned).length;
-    document.getElementById("pendingCount").textContent=applicants.filter(a=>!a.returned).length;
+  // update dashboard counts and recent list
+  function updateUI(){
+    const arr = load();
+    const total = arr.length;
+    const returned = arr.filter(r=>r.returned).length;
+    const issued = total - returned;
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('issuedCount').textContent = issued;
+    document.getElementById('returnedCount').textContent = returned;
+
+    // recent 6
+    const recent = [...arr].sort((a,b)=>b.issueDate - a.issueDate).slice(0,6);
+    const recentList = document.getElementById('recentList');
+    recentList.innerHTML = '';
+    if (recent.length === 0) recentList.innerHTML = '<div class="muted">No records yet</div>';
+    recent.forEach(r=>{
+      const d = document.createElement('div');
+      d.style.padding='10px';d.style.borderRadius='8px';d.style.background='rgba(255,255,255,0.02)';
+      d.innerHTML = `<strong>${r.studentName}</strong><div class="muted" style="font-size:13px">${r.className} · ${r.bookName} · ${r.returned? 'Returned':'Issued'}</div>`;
+      recentList.appendChild(d);
+    });
   }
 
-  function askPin(){ let pin=prompt("Enter Librarian PIN:"); return pin==="@fdc@"; }
+  // add applicant — requires librarian and PIN confirmation
+  const addForm = document.getElementById('addForm');
+  addForm?.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!isAuth()) { alert('Only librarian can add applicants. Please login.'); location.href='login.html'; return; }
+    const pin = prompt('Enter librarian PIN to confirm:');
+    if (pin !== PIN) { alert('❌ Wrong PIN — not saved'); return; }
 
-  function addApplicant(){
-    if(!askPin()){ alert("❌ Wrong PIN"); return; }
-    const name=document.getElementById("studentName").value.trim();
-    const father=document.getElementById("fatherName").value.trim();
-    const roll=document.getElementById("rollNo").value.trim();
-    const cls=document.getElementById("studentClass").value;
-    const book=document.getElementById("bookName").value.trim();
-    if(!name||!father||!roll||!cls||!book){ alert("Fill all fields"); return; }
-    applicants.push({id:Date.now(),name,father,roll,class:cls,book,issueDate:new Date().toISOString(),returned:false});
-    save(); updateDashboard();
-    ["studentName","fatherName","rollNo","studentClass","bookName"].forEach(id=>document.getElementById(id).value="");
-    alert("✅ Applicant Added");
+    const newRec = {
+      id: Date.now() + Math.floor(Math.random()*999),
+      studentName: document.getElementById('studentName').value.trim(),
+      fatherName: document.getElementById('fatherName').value.trim(),
+      rollNo: document.getElementById('rollNo').value.trim(),
+      className: document.getElementById('className').value,
+      phone: document.getElementById('phone').value.trim(),
+      bookName: document.getElementById('bookName').value.trim(),
+      issueDate: Date.now(),
+      returned: false
+    };
+    const arr = load();
+    arr.push(newRec);
+    save(arr);
+    updateUI();
+    addForm.reset();
+    alert('✅ Applicant saved');
+  });
+
+  // export CSV
+  function exportCSV(){
+    const arr = load();
+    if(arr.length===0){ alert('No records to export'); return; }
+    const headers = ['id','studentName','fatherName','rollNo','className','phone','bookName','issueDate','returned'];
+    const lines = arr.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','));
+    const csv = [headers.join(',')].concat(lines).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'fdc_library_records.csv'; a.click();
+    URL.revokeObjectURL(url);
   }
 
-  function fillClasses(){
-    const sel=document.getElementById("studentClass");
-    sel.innerHTML='<option value="">Select Class</option>';
-    for(let i=1;i<=12;i++){ sel.innerHTML+=`<option value="${i}">Class ${i}</option>`; }
+  // sample helper (for demo)
+  function importSample(){
+    if(!confirm('Insert a few sample records?')) return;
+    const sample = [
+      { id:Date.now()+1, studentName:'Ali Khan', fatherName:'Aslam Khan', rollNo:'A001', className:'10', phone:'0300-111222', bookName:'Mathematics', issueDate:Date.now()-86400000*2, returned:false },
+      { id:Date.now()+2, studentName:'Sara Iqbal', fatherName:'Shahid Iqbal', rollNo:'B022', className:'9', phone:'0300-222333', bookName:'Biology', issueDate:Date.now()-86400000*7, returned:true },
+      { id:Date.now()+3, studentName:'Bilal Ahmed', fatherName:'Rashid Ahmed', rollNo:'C101', className:'11', phone:'0300-333444', bookName:'Physics', issueDate:Date.now()-86400000*1, returned:false }
+    ];
+    const arr = load().concat(sample);
+    save(arr); updateUI(); alert('Sample records inserted');
   }
 
-  function toggleMode(){ document.body.classList.toggle("dark"); localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light"); }
-  function loadTheme(){ if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); } }
+  // logout (clears session only)
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{
+    sessionStorage.removeItem('fdcAuth');
+    sessionStorage.removeItem('fdcAuthTime');
+    alert('Logged out (this tab). To use add/return/delete again, please login.');
+    // hide add form
+    renderAuthState();
+  });
 
-  // Show Add section only if librarian logged in
-  if(isLibrarian){ document.getElementById("addSection").style.display="block"; }
+  // theme toggle, saved in localStorage
+  const themeBtn = document.getElementById('themeBtn');
+  themeBtn.addEventListener('click', ()=>{
+    const current = localStorage.getItem('fdcTheme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('fdcTheme', next);
+    applyTheme();
+  });
+  function applyTheme(){
+    const t = localStorage.getItem('fdcTheme') || 'dark';
+    if (t === 'light'){
+      document.documentElement.style.setProperty('--bg1','#f6f9ff');
+      document.documentElement.style.setProperty('--bg2','#eaf2ff');
+      document.documentElement.style.setProperty('--glass','rgba(2,6,23,0.03)');
+      document.documentElement.style.setProperty('--text','#081229');
+    } else {
+      document.documentElement.style.setProperty('--bg1','#081229');
+      document.documentElement.style.setProperty('--bg2','#14223b');
+      document.documentElement.style.setProperty('--glass','rgba(255,255,255,0.03)');
+      document.documentElement.style.setProperty('--text','#e9f2ff');
+    }
+  }
 
-  fillClasses(); loadTheme(); updateDashboard();
+  // show/hide add section based on session auth
+  function renderAuthState(){
+    const addW = document.getElementById('addWrapper');
+    const notLogged = document.getElementById('notLoggedNotice');
+    if (isAuth()){
+      addW.style.display = 'block';
+      notLogged.style.display = 'none';
+    } else {
+      addW.style.display = 'none';
+      notLogged.style.display = 'block';
+    }
+  }
+
+  // initial
+  applyTheme();
+  updateUI();
+  renderAuthState();
+
+  // keep dashboard UI live: update when page visible or focus
+  window.addEventListener('focus', ()=>{ updateUI(); });
 </script>
 </body>
 </html>

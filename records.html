@@ -1,91 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FDC Library - Records</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FDC Library — Records</title>
   <style>
-    :root { --bg:#f0f2f5; --text:#111; --card-bg:rgba(255,255,255,0.7); --accent:#6366f1; }
-    body.dark { --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee; }
-    body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); color:var(--text); transition:.3s; }
-    .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; }
-    .navbar a { color:#fff; margin:0 10px; text-decoration:none; font-weight:500; }
-    .toggle-btn { background:#fff; color:var(--accent); border:none; padding:6px 12px; border-radius:20px; cursor:pointer; }
-    .section { max-width:1000px; margin:25px auto; padding:20px; border-radius:16px; background:var(--card-bg); backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.1); }
-    h2 { color:var(--accent); }
-    .accordion { margin:12px 0; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    .accordion-header { background:var(--accent); color:#fff; padding:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
-    .accordion-content { display:none; padding:12px; }
-    .record { margin:10px 0; padding:12px; border-radius:10px; background:var(--card-bg); box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:.3s; }
-    .record.returned { border-left:5px solid #22c55e; }
-    .record.pending { border-left:5px solid #ef4444; }
-    .btn { padding:6px 12px; border:none; border-radius:8px; margin-top:8px; margin-right:5px; cursor:pointer; font-weight:500; }
-    .btn-return { background:#22c55e; color:white; }
-    .btn-delete { background:#ef4444; color:white; }
+    :root{
+      --bg1:#081229; --bg2:#14223b; --glass:rgba(255,255,255,0.03); --text:#e9f2ff;
+      --accent1:#ff0057; --accent2:#7303c0; --accent3:#00c9ff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--text);}
+
+    header{background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));padding:14px 18px;text-align:center;font-weight:700}
+    .nav{display:flex;justify-content:center;gap:8px;padding:10px;background:rgba(255,255,255,0.03)}
+    .nav a{color:#fff;text-decoration:none;padding:8px 10px;border-radius:8px}
+    .wrap{max-width:1100px;margin:18px auto;padding:0 16px;display:flex;flex-direction:column;gap:14px}
+
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input.search{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--text)}
+
+    .accordion{background:var(--glass);border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,0.04)}
+    .class-header{display:flex;justify-content:space-between;align-items:center;padding:10px;cursor:pointer;border-radius:8px}
+    .class-header h3{margin:0;font-size:16px}
+    .class-content{padding:8px 10px}
+
+    .record{background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .rec-left{flex:1}
+    .muted{color:rgba(255,255,255,0.7);font-size:13px}
+    .rec-actions{display:flex;gap:8px}
+    .btn{padding:8px 10px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    .btn-return{background:#22c55e;color:#01210a}
+    .btn-delete{background:#ef4444;color:#fff}
+    .notice{padding:10px;border-radius:8px;background:rgba(255,255,255,0.02)}
+
+    @media(max-width:720px){
+      .record{flex-direction:column;align-items:flex-start}
+      .rec-actions{width:100%}
+    }
   </style>
 </head>
 <body>
-  <div class="navbar">
-    <div><strong>📖 FDC Library</strong></div>
-    <div>
-      <a href="index.html">Home</a>
-      <a href="records.html">Records</a>
-      <a href="login.html">Librarian Login</a>
-      <button class="toggle-btn" onclick="toggleMode()">🌙</button>
-    </div>
+  <header>📚 FDC Library — Records</header>
+  <div class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="records.html">Records</a>
+    <a href="login.html">Librarian Login</a>
   </div>
 
-  <div class="section">
-    <h2>📚 Records (Class-wise)</h2>
+  <div class="wrap">
+    <div class="controls">
+      <input id="q" class="search" placeholder="Search by student, roll, book, or class... (type and press Enter)">
+      <button class="btn" onclick="render()">Search</button>
+      <button class="btn" onclick="clearSearch()">Clear</button>
+    </div>
+
     <div id="recordsContainer"></div>
   </div>
 
 <script>
-  let applicants=JSON.parse(localStorage.getItem("applicants"))||[];
-  let isLibrarian=localStorage.getItem("fdcAuth")==="true";
+  const KEY = 'fdcApplicants';
+  const PIN = '@fdc@';
+  function load(){ return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  function save(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+  function isAuth(){ return sessionStorage.getItem('fdcAuth') === 'true'; }
 
-  function save(){ localStorage.setItem("applicants",JSON.stringify(applicants)); }
-  function calcDays(date){ return Math.floor((Date.now()-new Date(date))/(1000*60*60*24)); }
-  function toggleAccordion(c){ const el=document.getElementById("c"+c); el.style.display=el.style.display==="block"?"none":"block"; }
+  // calc days since issueDate (ms)
+  function daysSince(ms){ const d = Math.floor((Date.now() - ms) / (1000*60*60*24)); return d; }
 
-  function askPin(){ let pin=prompt("Enter Librarian PIN:"); return pin==="@fdc@"; }
-
-  function returnBook(id){
-    if(!askPin()) return alert("❌ Wrong PIN");
-    applicants=applicants.map(a=>a.id===id?{...a,returned:true}:a); save(); render();
-  }
-  function deleteApplicant(id){
-    if(!askPin()) return alert("❌ Wrong PIN");
-    applicants=applicants.filter(a=>a.id!==id); save(); render();
-  }
-
+  // render class-wise
   function render(){
-    const container=document.getElementById("recordsContainer"); container.innerHTML="";
-    for(let c=1;c<=12;c++){
-      const classApplicants=applicants.filter(a=>a.class==c);
-      const acc=document.createElement("div"); acc.className="accordion";
-      const head=document.createElement("div"); head.className="accordion-header"; head.innerHTML=`Class ${c} <span>(${classApplicants.length})</span>`;
-      head.onclick=()=>toggleAccordion(c);
-      const content=document.createElement("div"); content.className="accordion-content"; content.id="c"+c;
-      classApplicants.forEach(a=>{
-        const rec=document.createElement("div"); rec.className="record "+(a.returned?"returned":"pending");
-        rec.innerHTML=`<strong>${a.name}</strong> (Roll: ${a.roll})<br>Father: ${a.father}<br>Book: ${a.book}<br>Issued: ${new Date(a.issueDate).toLocaleDateString()}<br>Days Passed: ${calcDays(a.issueDate)}<br>Status: <b>${a.returned?"Returned ✅":"Pending ⏳"}</b>`;
-        if(isLibrarian){
-          const actions=document.createElement("div");
-          if(!a.returned){ const b=document.createElement("button"); b.className="btn btn-return"; b.textContent="Mark Returned"; b.onclick=()=>returnBook(a.id); actions.appendChild(b); }
-          const d=document.createElement("button"); d.className="btn btn-delete"; d.textContent="Delete"; d.onclick=()=>deleteApplicant(a.id); actions.appendChild(d);
-          rec.appendChild(actions);
+    const q = (document.getElementById('q').value || '').toLowerCase().trim();
+    const container = document.getElementById('recordsContainer');
+    container.innerHTML = '';
+    const arr = load();
+
+    // group by className (1..12 or strings)
+    const grouped = {};
+    arr.forEach(r=>{
+      const cls = r.className || r.class || 'Unspecified';
+      if(!grouped[cls]) grouped[cls] = [];
+      grouped[cls].push(r);
+    });
+
+    const classes = Object.keys(grouped).sort((a,b)=> {
+      const na = parseInt(a), nb = parseInt(b);
+      if(!isNaN(na) && !isNaN(nb)) return na - nb;
+      return a.localeCompare(b);
+    });
+
+    if (classes.length === 0) {
+      container.innerHTML = '<div class="notice">No records found.</div>';
+      return;
+    }
+
+    classes.forEach(cls=>{
+      // filter by search
+      let items = grouped[cls].filter(r=>{
+        if(!q) return true;
+        return (r.studentName||'').toLowerCase().includes(q) ||
+               (r.rollNo||'').toLowerCase().includes(q) ||
+               (r.bookName||'').toLowerCase().includes(q) ||
+               (String(r.className||'')).toLowerCase().includes(q);
+      });
+
+      // skip empty after filter
+      if(items.length === 0) return;
+
+      const acc = document.createElement('div');
+      acc.className = 'accordion';
+
+      const head = document.createElement('div');
+      head.className = 'class-header';
+      head.innerHTML = `<h3>Class ${cls}</h3><div class="muted">(${items.length})</div>`;
+      head.onclick = () => {
+        const c = acc.querySelector('.class-content');
+        c.style.display = c.style.display === 'block' ? 'none' : 'block';
+      };
+
+      const content = document.createElement('div');
+      content.className = 'class-content';
+      content.style.display = 'none';
+
+      items.sort((a,b)=> b.issueDate - a.issueDate).forEach(r=>{
+        const rec = document.createElement('div');
+        rec.className = 'record';
+        const left = document.createElement('div'); left.className='rec-left';
+        const days = daysSince(r.issueDate || 0);
+        left.innerHTML = `<strong>${r.studentName}</strong> <div class="muted">Roll: ${r.rollNo || '-'} · Phone: ${r.phone || '-'} · Book: ${r.bookName || '-'} </div>
+                          <div class="muted">Issued: ${new Date(r.issueDate).toLocaleDateString()} · Days: ${days} · Status: ${r.returned ? 'Returned ✅' : 'Pending ⏳'}</div>`;
+
+        const actions = document.createElement('div'); actions.className='rec-actions';
+
+        // Return / Delete buttons visible only for logged-in librarian
+        if (isAuth()) {
+          if (!r.returned) {
+            const btnReturn = document.createElement('button'); btnReturn.className='btn btn-return'; btnReturn.textContent='Mark Returned';
+            btnReturn.onclick = () => doReturn(r.id);
+            actions.appendChild(btnReturn);
+          }
+          const btnDelete = document.createElement('button'); btnDelete.className='btn btn-delete'; btnDelete.textContent='Delete';
+          btnDelete.onclick = () => doDelete(r.id);
+          actions.appendChild(btnDelete);
         }
+
+        rec.appendChild(left);
+        if(isAuth()) rec.appendChild(actions);
         content.appendChild(rec);
       });
-      acc.appendChild(head); acc.appendChild(content); container.appendChild(acc);
-    }
+
+      acc.appendChild(head);
+      acc.appendChild(content);
+      container.appendChild(acc);
+    });
   }
 
-  function toggleMode(){ document.body.classList.toggle("dark"); localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light"); }
-  function loadTheme(){ if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); } }
+  // actions require PIN confirmation
+  function askPin(){
+    const pin = prompt('Enter librarian PIN to confirm:');
+    return pin === PIN;
+  }
 
-  loadTheme(); render();
+  function doReturn(id){
+    if(!askPin()){ alert('Wrong PIN'); return; }
+    const arr = load();
+    const idx = arr.findIndex(x=>x.id === id);
+    if(idx === -1) return alert('Record not found');
+    arr[idx].returned = true;
+    save(arr); render(); alert('Marked returned');
+  }
+
+  function doDelete(id){
+    if(!askPin()){ alert('Wrong PIN'); return; }
+    if(!confirm('Delete this record permanently?')) return;
+    let arr = load();
+    arr = arr.filter(x=>x.id !== id);
+    save(arr); render(); alert('Deleted');
+  }
+
+  function clearSearch(){ document.getElementById('q').value=''; render(); }
+
+  // on load: if not logged in, user can still view records (read-only).
+  // If been logged-in in this tab, action buttons will be visible.
+  document.addEventListener('DOMContentLoaded', ()=>{ render(); });
 </script>
 </body>
 </html>
