@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FDC Library - Records</title>
   <style>
-    :root {
-      --bg:#f0f2f5; --text:#111; --card-bg:rgba(255,255,255,0.7); --accent:#6366f1;
-    }
-    body.dark {
-      --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee;
-    }
+    :root { --bg:#f0f2f5; --text:#111; --card-bg:rgba(255,255,255,0.7); --accent:#6366f1; }
+    body.dark { --bg:#0f172a; --text:#f8fafc; --card-bg:rgba(30,41,59,0.7); --accent:#22d3ee; }
     body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); color:var(--text); transition:.3s; }
     .navbar { background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 20px; }
     .navbar a { color:#fff; margin:0 10px; text-decoration:none; font-weight:500; }
@@ -34,6 +30,7 @@
     <div>
       <a href="index.html">Home</a>
       <a href="records.html">Records</a>
+      <a href="login.html">Librarian Login</a>
       <button class="toggle-btn" onclick="toggleMode()">🌙</button>
     </div>
   </div>
@@ -44,12 +41,24 @@
   </div>
 
 <script>
-  let applicants = JSON.parse(localStorage.getItem("applicants")) || [];
-  function save(){ localStorage.setItem("applicants", JSON.stringify(applicants)); }
+  let applicants=JSON.parse(localStorage.getItem("applicants"))||[];
+  let isLibrarian=localStorage.getItem("fdcAuth")==="true";
+
+  function save(){ localStorage.setItem("applicants",JSON.stringify(applicants)); }
   function calcDays(date){ return Math.floor((Date.now()-new Date(date))/(1000*60*60*24)); }
   function toggleAccordion(c){ const el=document.getElementById("c"+c); el.style.display=el.style.display==="block"?"none":"block"; }
-  function returnBook(id){ applicants=applicants.map(a=>a.id===id?{...a,returned:true}:a); save(); render(); }
-  function deleteApplicant(id){ applicants=applicants.filter(a=>a.id!==id); save(); render(); }
+
+  function askPin(){ let pin=prompt("Enter Librarian PIN:"); return pin==="@fdc@"; }
+
+  function returnBook(id){
+    if(!askPin()) return alert("❌ Wrong PIN");
+    applicants=applicants.map(a=>a.id===id?{...a,returned:true}:a); save(); render();
+  }
+  function deleteApplicant(id){
+    if(!askPin()) return alert("❌ Wrong PIN");
+    applicants=applicants.filter(a=>a.id!==id); save(); render();
+  }
+
   function render(){
     const container=document.getElementById("recordsContainer"); container.innerHTML="";
     for(let c=1;c<=12;c++){
@@ -61,21 +70,21 @@
       classApplicants.forEach(a=>{
         const rec=document.createElement("div"); rec.className="record "+(a.returned?"returned":"pending");
         rec.innerHTML=`<strong>${a.name}</strong> (Roll: ${a.roll})<br>Father: ${a.father}<br>Book: ${a.book}<br>Issued: ${new Date(a.issueDate).toLocaleDateString()}<br>Days Passed: ${calcDays(a.issueDate)}<br>Status: <b>${a.returned?"Returned ✅":"Pending ⏳"}</b>`;
-        const actions=document.createElement("div");
-        if(!a.returned){ const b=document.createElement("button"); b.className="btn btn-return"; b.textContent="Mark Returned"; b.onclick=()=>returnBook(a.id); actions.appendChild(b); }
-        const d=document.createElement("button"); d.className="btn btn-delete"; d.textContent="Delete"; d.onclick=()=>deleteApplicant(a.id); actions.appendChild(d);
-        rec.appendChild(actions); content.appendChild(rec);
+        if(isLibrarian){
+          const actions=document.createElement("div");
+          if(!a.returned){ const b=document.createElement("button"); b.className="btn btn-return"; b.textContent="Mark Returned"; b.onclick=()=>returnBook(a.id); actions.appendChild(b); }
+          const d=document.createElement("button"); d.className="btn btn-delete"; d.textContent="Delete"; d.onclick=()=>deleteApplicant(a.id); actions.appendChild(d);
+          rec.appendChild(actions);
+        }
+        content.appendChild(rec);
       });
       acc.appendChild(head); acc.appendChild(content); container.appendChild(acc);
     }
   }
-  function toggleMode(){
-    document.body.classList.toggle("dark");
-    localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
-  }
-  function loadTheme(){
-    if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); }
-  }
+
+  function toggleMode(){ document.body.classList.toggle("dark"); localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light"); }
+  function loadTheme(){ if(localStorage.getItem("theme")==="dark"){ document.body.classList.add("dark"); } }
+
   loadTheme(); render();
 </script>
 </body>
